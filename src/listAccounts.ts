@@ -1,4 +1,5 @@
-import { execSync, exec } from "child_process";
+import { exec } from "child_process";
+import { executeRetrying } from "./executeRetrying";
 
 export interface Account {
   title: string;
@@ -8,22 +9,22 @@ export interface Account {
 
 function execute(command: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    exec(command, { encoding: 'utf-8' }, (error, stdout) => {
+    exec(command, { encoding: "utf-8" }, (error, stdout) => {
       if (error) {
         reject(error);
       } else {
         resolve(stdout);
       }
-    })
-  })
+    });
+  });
 }
 
 export async function listAccounts(): Promise<Account[]> {
-  const result = await execute('/usr/local/bin/ykman oath accounts code')
+  const result = await executeRetrying(() => execute("/usr/local/bin/ykman oath accounts code"), { retries: 5 });
   const lines = result.split("\n");
   return lines
-    .filter(it => !!it)
-    .map(line => {
+    .filter((it) => !!it)
+    .map((line) => {
       const index = line.lastIndexOf(" ");
       const titleAndAccount = line.substring(0, index).trim();
       const code = line.substring(index + 1).trim();
