@@ -20,7 +20,7 @@ function execute(command: string): Promise<string> {
 }
 
 export async function listAccounts(): Promise<Account[]> {
-  const result = await executeRetrying(() => execute("$(which ykman) oath accounts code"), { retries: 5 });
+  const result = await executeRetrying(() => execute("/usr/local/bin/ykman oath accounts code"), { retries: 5 });
   const lines = result.split("\n");
   return lines
     .filter((it) => !!it)
